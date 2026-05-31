@@ -1,3 +1,4 @@
+import os
 from fastapi import FastAPI, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -10,8 +11,18 @@ from sqlalchemy.orm import sessionmaker, Session
 from jose import jwt
 from passlib.context import CryptContext
 
-DATABASE_URL = "postgresql://postgres:123456@localhost/saas_dashboard"
-SECRET_KEY = "MEU_SEGREDO_SUPER_FORTE"
+# =========================
+# CONFIGURAÇÃO DE BANCO DE DADOS E SEGURANÇA
+# =========================
+# Puxa a URL do Render. Se não achar (no teu PC), usa o localhost
+DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://postgres:123456@localhost/saas_dashboard")
+
+# O Render fornece 'postgres://', mas o SQLAlchemy exige 'postgresql://'
+if DATABASE_URL and DATABASE_URL.startswith("postgres://"):
+    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
+
+# Puxa a chave secreta do Render, ou usa a padrão local
+SECRET_KEY = os.getenv("SECRET_KEY", "MEU_SEGREDO_SUPER_FORTE")
 ALGORITHM = "HS256"
 
 engine = create_engine(DATABASE_URL)
@@ -23,14 +34,15 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 app = FastAPI()
 
 # =========================
-# CONFIGURAÇÃO DE SEGURANÇA (CORS Corrigido)
+# CONFIGURAÇÃO DE SEGURANÇA (CORS)
 # =========================
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "http://localhost:3000",
         "http://127.0.0.1:3000",
-        "http://192.168.1.5:3000"
+        "http://192.168.1.5:3000",
+        "*" # Permite que o Netlify se ligue à API mais tarde
     ],
     allow_credentials=True,
     allow_methods=["*"],
@@ -45,7 +57,7 @@ def get_db():
     try:
         yield db
     finally:
-        db.close()  # Garante que a ligação é sempre fechada!
+        db.close()
 
 # =========================
 # MODELS
