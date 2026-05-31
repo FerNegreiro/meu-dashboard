@@ -52,7 +52,3 @@ Base de Dados: PostgreSQL hospedado no [Render]
 
 Desenvolvido com dedicação para elevar o padrão da análise de dados.
 
-
-Podes guardar este ficheiro, escrever "Adicionado README" na tal caixa de texto das Alterações no VS Code, clicar em **Confirmar** e depois em **Publicar Ramo** (como falámos no passo anterior).
-
-Assim que fizeres isso, o teu projeto está devidamente guardado e documentado no GitHub! Diz-me
